@@ -6,6 +6,9 @@ import {ERC721} from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 
 contract CatsArmy is ERC721URIStorage {
     uint256 private _nextTokenId = 1;
+    mapping(string => bool) private _mintedTokenURIs;
+
+    error TokenURIAlreadyMinted(string tokenURI);
 
     constructor() ERC721("CatsArmy", "CAT") {}
 
@@ -13,9 +16,14 @@ contract CatsArmy is ERC721URIStorage {
         address player,
         string memory tokenURI
     ) public returns (uint256) {
+        if (_mintedTokenURIs[tokenURI]) {
+            revert TokenURIAlreadyMinted(tokenURI);
+        }
+
         uint256 tokenId = _nextTokenId++;
         _mint(player, tokenId);
         _setTokenURI(tokenId, tokenURI);
+        _mintedTokenURIs[tokenURI] = true;
         return tokenId;
     }
 }
